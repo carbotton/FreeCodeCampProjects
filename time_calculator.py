@@ -1,6 +1,4 @@
-def add_time(start, duration, weekDay = "Nothing"):
-
-  dayInfo = ""
+def add_time(start, duration, weekDay = None):
 
   try:
       [startTime, am_pm_start] = start.split(" ")
@@ -17,86 +15,81 @@ def add_time(start, duration, weekDay = "Nothing"):
   except:
     print("Missing information in duration.")
 
-  #try:
-   # mins = int(startTimeMins) + int(durationMins)
-    #hours = int(startTimeHours) + int(durationHours)
-  #except:
-  #  print("Time and duration should contain time format.")
+  try:
+    startTimeHours = int(startTimeHours)
+    durationHours = int(durationHours)
+    startTimeMins = int(startTimeMins)
+    durationMins = int(durationMins)
+  except:
+    print("Time and duration should contain time format.")
 
-  startTimeHours = int(startTimeHours)
-  durationHours = int(durationHours)
+  #init
+  totalHours = 0
+  weekDaysDict = {"monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3, "friday": 4, "saturday": 5, "sunday": 6} 
+  if weekDay:
+    dayInfo = ", "+weekDay
+  else:
+    dayInfo = "" 
+  #
 
   #change to 24hr format 
   if am_pm_start == "PM":
     startTimeHours += 12
   # 
 
-  [c, r] = divmod(durationHours,24)
-  if c > 0:
-    #agrego c dias
-    print(c)
-  #
-  totalHours = startTimeHours + r   #r = remaining hours
+  #handle minutes
+  totalMins = startTimeMins + durationMins
 
-  if totalHours > 24:
-    #agrego 1 dia
-    totalHours -= 12 
-    print(totalHours)
-  #
+  if totalMins >= 60:  #add hours
+    [c, r] = divmod(totalMins, 60)
+    if c > 0:  #add c1 hours
+      totalHours = c
+    if r > 0:
+      totalMins = r
+  #  
 
-  totalHours -= 12    #final hours
-  am_pm = am_pm_start 
-  if totalHours > 12:
-    if am_pm_start == "PM":
-      am_pm = "AM"
-    else:  
-      am_pm = "AM"
-  #
+  #handle hours
+  [daysToAdd, hoursToAdd] = divmod(durationHours, 24)
 
+  totalHours += startTimeHours + hoursToAdd   #hoursToAdd = remaining hours
 
-  mins = 0
-  dayInfo = ""
-  new_time = str(totalHours)+":"+str(mins).zfill(2)+" "+am_pm+dayInfo
-
-
-  ##################### IGNORE BELOW  ####################
-
-  mins = 0
-  hours = 0
-  if mins >= 60:  #add 1hr if time reaches 60 minutes
-    mins -= 60
-    hours += 1
+  if totalHours >= 24:   #add 1 day
+    daysToAdd += 1
+    totalHours -= 24  
   #
 
+  #handle am - pm
+  am_pm = "AM" 
+ 
+  if totalHours >= 12:
+    am_pm = "PM"
+    totalHours -= 12    #final hours
+  #     
 
-  #change to 24hr format and add totals
-  if am_pm_start == "PM":
-    hours = int(startTimeHours) + 12 + int(durationHours) #1PM = 13hs 
-  else:
-    hours = int(startTimeHours) + int(durationHours)
+  if totalHours == 0:
+    totalHours = 12
   #
-  mins = int(startTimeMins) + int(durationMins)
-  if mins >= 60:  #add 1hr if time reaches 60 minutes
-    mins -= 60
-    hours += 1
+
+  if daysToAdd > 0: 
+
+    if weekDay:
+      weekDay = weekDaysDict[weekDay.lower()]
+      [weeks, days] = divmod(weekDay, 7)
+      weekDay += days
+      [temp, finalWeekDay] = divmod(weekDay, 7)
+      dayInfo = list(weekDaysDict.keys())[list(weekDaysDict.values()).index(finalWeekDay)]
+      dayInfo = list(dayInfo)
+      dayInfo[0] = dayInfo[0].upper()
+      dayInfo = ", " + str("".join(dayInfo))
+
+    else:
+      if daysToAdd == 1:
+        dayInfo = " (next day)"
+      else:
+        dayInfo = " (" + str(daysToAdd) + " days later)"
+      #
   #
 
+  new_time = str(totalHours)+":"+str(totalMins).zfill(2)+" "+am_pm+dayInfo
 
-  #c = how many days, r = how many extra hours -> 51/24 => c = 2, r = 3. 2 days, 3 hours
-  [c, r] = divmod(hours,24) 
-  if c == 1:
-    dayInfo = " (next day)"
-  elif c > 0:
-    dayInfo = " ("+c+" days later)"
-
-
-  #ver cuando r es mayor a 24hs tengo que volver a sumar dias 
-
-
-
-
-  
   return new_time
-
-
-  # a // b -> floor division. Rounds the result down to the nearest whole number
