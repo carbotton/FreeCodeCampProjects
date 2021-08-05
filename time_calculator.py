@@ -73,11 +73,15 @@ def add_time(start, duration, weekDay = None):
   if daysToAdd > 0: 
 
     if weekDay:
-      weekDay = weekDaysDict[weekDay.lower()]
-      [weeks, days] = divmod(weekDay, 7)
-      weekDay += days
-      [temp, finalWeekDay] = divmod(weekDay, 7)
-      dayInfo = list(weekDaysDict.keys())[list(weekDaysDict.values()).index(finalWeekDay)]
+      weekDay = weekDaysDict[weekDay.lower()]      
+      weekDay = (weekDay+daysToAdd) % 7 #circular
+      dayInfo = list(weekDaysDict.keys())[list(weekDaysDict.values()).index(weekDay)]
+      
+      if daysToAdd == 1:
+        dayInfo += " (next day)"
+      else:
+        dayInfo += " (" + str(daysToAdd) + " days later)"
+      #
       dayInfo = list(dayInfo)
       dayInfo[0] = dayInfo[0].upper()
       dayInfo = ", " + str("".join(dayInfo))
@@ -93,3 +97,6 @@ def add_time(start, duration, weekDay = None):
   new_time = str(totalHours)+":"+str(totalMins).zfill(2)+" "+am_pm+dayInfo
 
   return new_time
+
+
+
